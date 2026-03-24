@@ -6,7 +6,8 @@ import {
   LayoutGrid, 
   Download,
   ShieldCheck,
-  Globe
+  Globe,
+  RefreshCw
 } from 'lucide-react';
 
 const CLOUD_API = 'https://baixabaixa.onrender.com/api';
@@ -66,6 +67,15 @@ function App() {
       } catch (err) {
         console.error('Erro ao excluir:', err);
       }
+    }
+  };
+
+  const handleRetry = async (id) => {
+    try {
+      await api.post(`/channels/${id}/retry`);
+      fetchChannels();
+    } catch (err) {
+      console.error('Erro ao refazer:', err);
     }
   };
 
@@ -130,7 +140,23 @@ function App() {
                   <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>
                     {status.label}
                   </span>
+                  {channel.status === 'error' && (
+                    <button 
+                      onClick={() => handleRetry(channel._id)} 
+                      className="btn-retry" 
+                      title="Tentar Novamente"
+                      style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    >
+                      <RefreshCw size={14} />
+                    </button>
+                  )}
                 </div>
+
+                {channel.status === 'error' && channel.message && (
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.7rem', color: '#ef4444', opacity: 0.9, backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '0.4rem', borderRadius: '4px' }}>
+                    {channel.message}
+                  </div>
+                )}
 
                 {channel.save_path && (
                   <div style={{ marginTop: '0.8rem', fontSize: '0.75rem', opacity: 0.4, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
